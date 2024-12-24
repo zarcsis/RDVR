@@ -23,6 +23,7 @@ Java_com_mefazm_rdvr_SessionActivity_connect(JNIEnv* env, jobject obj, jstring h
          jStringToString(env, hostname).c_str(),
          jStringToString(env, username).c_str(),
          jStringToString(env, password).c_str());
+    initStdIORedirection();
     RDP_CLIENT_ENTRY_POINTS clientEntryPoints = {
         .Size = sizeof(RDP_CLIENT_ENTRY_POINTS),
         .Version = RDP_CLIENT_INTERFACE_VERSION,

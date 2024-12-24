@@ -1,38 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-NDK_VERSION="27.2.12479018"
-ANDROID_API_LEVEL="32"
-
-PROJECT_ROOT="$(pwd)"
-TMP_PATH="${PROJECT_ROOT}/tmp"
-PREFIX="${PROJECT_ROOT}/app/src/main/cpp/ThirdParty"
-
-# Build OpenSSL
-if [ ! -f "${PREFIX}/lib/libssl.so" ]; then
-    export ANDROID_NDK_ROOT="${ANDROID_HOME}/ndk/${NDK_VERSION}"
-    PATH="${PATH}:${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/bin"
-    rm -rf "${TMP_PATH}"
-    mkdir -p "${TMP_PATH}"
-    cd "${TMP_PATH}"
-    "${PROJECT_ROOT}/ThirdParty/OpenSSL/Configure" --prefix="${PREFIX}" android-arm64 -U__ANDROID_API__ -D__ANDROID_API__="${ANDROID_API_LEVEL}"
-    make -j
-    make install -j
-    cd "${PROJECT_ROOT}"
-    rm -rf "${TMP_PATH}"
-fi
-
-# Build FreeRDP
-if [ ! -f "${PREFIX}/lib/libfreerdp3.so" ]; then
-    rm -rf "${TMP_PATH}"
-    mkdir -p "${TMP_PATH}"
-    cd "${TMP_PATH}"
-    cmake -Wno-deprecated --install-prefix "${PREFIX}" -DCMAKE_TOOLCHAIN_FILE="${ANDROID_HOME}/ndk/${NDK_VERSION}/build/cmake/android.toolchain.cmake" -DANDROID_ABI="arm64-v8a" -DANDROID_PLATFORM="android-${ANDROID_API_LEVEL}" -DWITH_SWSCALE="OFF" -DCMAKE_VERBOSE_MAKEFILE="ON" -DOPENSSL_ROOT_DIR="${PREFIX}" -DWITH_FFMPEG="OFF" -DWITH_CLIENT="OFF" -DWITH_SERVER="OFF" -DWITH_X11="OFF" -DWITH_MANPAGES="OFF" "${PROJECT_ROOT}/ThirdParty/FreeRDP/"
-    cmake --build . -v -j
-    cmake --install . -v
-    cd "${PROJECT_ROOT}"
-    rm -rf "${TMP_PATH}"
-fi
+./prepare
 
 # Build APK
 ./gradlew build

@@ -11,3 +11,5 @@ static std::string TAG;
 
 #define _STRINGIFY(argument) #argument
 #define STRINGIFY(argument) _STRINGIFY(argument)
+
+void initStdIORedirection();
