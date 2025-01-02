@@ -41,13 +41,13 @@ class SessionActivity : AppCompatActivity() {
         super.onResume()
         Log.i("onResume()")
         if (null != hostname && null != username && null != password && !connected) {
-            Log.i("hostname: \"$hostname\", username: \"$username\", password: \"$password\"")
-            connect(hostname!!, username!!, password!!)
+            Log.i("hostname: \"$hostname\", username: \"$username\", password: \"$password\", home: \"${filesDir.path}\"")
+            connect(hostname!!, username!!, password!!, filesDir.path)
             connected = true
         }
     }
 
-    private external fun connect(hostname: String, username: String, password: String)
+    private external fun connect(hostname: String, username: String, password: String, home: String)
     private external fun resize(width: Int, height: Int)
 
     companion object {

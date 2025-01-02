@@ -10,7 +10,7 @@ list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_SOURCE_DIR}/ThirdParty/")
 add_library(${PROJECT_NAME} SHARED
     SessionActivity.cpp
     tools.cpp
-    log.cpp
+    FreeRDPConnect.cpp
 )
 target_compile_options(${PROJECT_NAME}
     PRIVATE -Wall
