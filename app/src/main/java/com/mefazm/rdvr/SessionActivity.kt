@@ -23,6 +23,13 @@ class SessionActivity : AppCompatActivity() {
         if (null == hostname) hostname = intent.getStringExtra("hostname")!!
         if (null == username) username = intent.getStringExtra("username")!!
         if (null == password) password = intent.getStringExtra("password")!!
+        sessionView?.post(Runnable() {
+            if (null != hostname && null != username && null != password && !connected) {
+                Log.i("hostname: \"$hostname\", username: \"$username\", password: \"$password\", home: \"${filesDir.path}\", w: \"${sessionView!!.width}\", h: \"${sessionView!!.height}\"")
+                connect(hostname!!, username!!, password!!, filesDir!!.path, sessionView!!.width, sessionView!!.height)
+                connected = true
+            }
+        })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -40,14 +47,9 @@ class SessionActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         Log.i("onResume()")
-        if (null != hostname && null != username && null != password && !connected) {
-            Log.i("hostname: \"$hostname\", username: \"$username\", password: \"$password\", home: \"${filesDir.path}\"")
-            connect(hostname!!, username!!, password!!, filesDir.path)
-            connected = true
-        }
     }
 
-    private external fun connect(hostname: String, username: String, password: String, home: String)
+    private external fun connect(hostname: String, username: String, password: String, home: String, width: Int, height: Int)
     private external fun resize(width: Int, height: Int)
 
     companion object {
