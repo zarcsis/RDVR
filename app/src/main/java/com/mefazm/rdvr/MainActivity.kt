@@ -38,14 +38,5 @@ class MainActivity : AppCompatActivity() {
                 putExtra("password", binding.editTextPassword.text.toString())
             })
         }
-        val opensslConfName = "openssl.cnf"
-        val opensslConf = File(filesDir, opensslConfName)
-        if (!opensslConf.exists()) {
-            assets.open(opensslConfName).use { cr ->
-                FileOutputStream(opensslConf).use { cw ->
-                    cr.copyTo(cw)
-                }
-            }
-        }
     }
 }
