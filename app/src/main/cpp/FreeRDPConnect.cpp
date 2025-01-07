@@ -69,7 +69,7 @@ namespace com::mefazm::rdvr {
                             LOGI("freerdp_connect() success.");
                         } else {
                             ret = freerdp_get_last_error(instance->context);
-                            LOGI("freerdp_connect() fail with error %u.", ret);
+                            LOGI("freerdp_connect() fail with error [%#010x].", ret);
                         }
                         return ret;
                     }, context->instance, 0, nullptr);
