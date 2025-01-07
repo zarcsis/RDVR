@@ -8,6 +8,8 @@ import androidx.core.widget.doAfterTextChanged
 import android.os.Bundle
 import android.text.Editable
 import android.content.Intent
+import java.io.File
+import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +37,15 @@ class MainActivity : AppCompatActivity() {
                 putExtra("username", binding.editTextUsername.text.toString())
                 putExtra("password", binding.editTextPassword.text.toString())
             })
+        }
+        val opensslConfName = "openssl.cnf"
+        val opensslConf = File(filesDir, opensslConfName)
+        if (!opensslConf.exists()) {
+            assets.open(opensslConfName).use { cr ->
+                FileOutputStream(opensslConf).use { cw ->
+                    cr.copyTo(cw)
+                }
+            }
         }
     }
 }

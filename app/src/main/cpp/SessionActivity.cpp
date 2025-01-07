@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 #include <memory>
+#include <fstream>
 
 static std::unique_ptr<com::mefazm::rdvr::FreeRDPConnect> pFreeRDPConnect = nullptr;
 
@@ -25,6 +26,7 @@ Java_com_mefazm_rdvr_SessionActivity_connect(JNIEnv* env, jobject obj, jstring h
          jStringToString(env, password).c_str(),
          jStringToString(env, home).c_str(), width, height);
     setenv("HOME", strdup(jStringToString(env, home).c_str()), 1);
+    setenv("OPENSSL_CONF", strdup((jStringToString(env, home) + std::string("/openssl.cnf")).c_str()), 1);
     pFreeRDPConnect = std::make_unique<com::mefazm::rdvr::FreeRDPConnect>(jStringToString(env, hostname), jStringToString(env, username), jStringToString(env, password), width, height);
 }
 
