@@ -20,8 +20,6 @@ if [ ! -f "${PREFIX}/lib/libssl.so" ]; then
     make install_sw -j
     cd "${PROJECT_ROOT}"
     rm -rf "${TMP_PATH}"
-    mkdir -p "${PROJECT_ROOT}/app/src/main/jniLibs/arm64-v8a/"
-    cp "${PREFIX}/lib/ossl-modules/legacy.so" "${PROJECT_ROOT}/app/src/main/jniLibs/arm64-v8a/legacy.so"
 fi
 
 # Build FreeRDP
@@ -29,7 +27,7 @@ if [ ! -f "${PREFIX}/lib/libfreerdp3.so" ]; then
     rm -rf "${TMP_PATH}"
     mkdir -p "${TMP_PATH}"
     cd "${TMP_PATH}"
-    cmake -Wno-deprecated --install-prefix "${PREFIX}" -DCMAKE_TOOLCHAIN_FILE="${ANDROID_HOME}/ndk/${NDK_VERSION}/build/cmake/android.toolchain.cmake" -DANDROID_ABI="arm64-v8a" -DANDROID_PLATFORM="android-${ANDROID_API_LEVEL}" -DWITH_SWSCALE="OFF" -DCMAKE_VERBOSE_MAKEFILE="ON" -DOPENSSL_ROOT_DIR="${PREFIX}" -DWITH_FFMPEG="OFF" -DWITH_CLIENT="OFF" -DWITH_SERVER="OFF" -DWITH_X11="OFF" -DWITH_MANPAGES="OFF" "${PROJECT_ROOT}/ThirdParty/FreeRDP/"
+    cmake -Wno-deprecated --install-prefix "${PREFIX}" -DCMAKE_TOOLCHAIN_FILE="${ANDROID_HOME}/ndk/${NDK_VERSION}/build/cmake/android.toolchain.cmake" -DANDROID_ABI="arm64-v8a" -DANDROID_PLATFORM="android-${ANDROID_API_LEVEL}" -DWITH_SWSCALE="OFF" -DCMAKE_VERBOSE_MAKEFILE="ON" -DOPENSSL_ROOT_DIR="${PREFIX}" -DWITH_FFMPEG="OFF" -DWITH_CLIENT="OFF" -DWITH_SERVER="OFF" -DWITH_X11="OFF" -DWITH_MANPAGES="OFF" -DWITH_INTERNAL_MD4="ON" -DWITH_INTERNAL_RC4="ON" -DWITH_INTERNAL_MD5="ON" "${PROJECT_ROOT}/ThirdParty/FreeRDP/"
     cmake --build . -v -j
     cmake --install . -v
     cd "${PROJECT_ROOT}"
