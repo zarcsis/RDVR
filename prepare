@@ -17,7 +17,7 @@ if [ ! -f "${PREFIX}/lib/libssl.so" ]; then
     cd "${TMP_PATH}"
     "${PROJECT_ROOT}/ThirdParty/OpenSSL/config" no-apps --prefix="${PREFIX}" android-arm64 -U__ANDROID_API__ -D__ANDROID_API__="${ANDROID_API_LEVEL}"
     make -j
-    make install -j
+    make install_sw -j
     cd "${PROJECT_ROOT}"
     rm -rf "${TMP_PATH}"
     mkdir -p "${PROJECT_ROOT}/app/src/main/jniLibs/arm64-v8a/"
