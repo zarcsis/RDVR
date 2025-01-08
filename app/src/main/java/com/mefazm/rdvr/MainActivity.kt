@@ -17,11 +17,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
-
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.i("Create instance.")
+        Log.i("onCreate()")
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -49,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-        Log.i("Resume instance.")
+        Log.i("onResume()")
         super.onResume()
         CoroutineScope(Dispatchers.IO).launch {
             dataStore.data.collect { settings ->
@@ -66,7 +64,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
-        Log.i("Pause instance.")
+        Log.i("onPause()")
         super.onPause()
         var hst = binding!!.editTextHostname.text.toString()
         var usr = binding!!.editTextUsername.text.toString()
@@ -81,7 +79,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var binding: ActivityMainBinding? = null
-    private val hostnameKey = stringPreferencesKey("HOSTNAME")
-    private val usernameKey = stringPreferencesKey("USERNAME")
-    private val passwordKey = stringPreferencesKey("PASSWORD")
+    private companion object {
+        private val hostnameKey = stringPreferencesKey("HOSTNAME")
+        private val usernameKey = stringPreferencesKey("USERNAME")
+        private val passwordKey = stringPreferencesKey("PASSWORD")
+        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+    }
 }
