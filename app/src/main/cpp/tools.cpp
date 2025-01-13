@@ -10,9 +10,6 @@ std::string jStringToString(JNIEnv * const env, jstring str) {
     if (nullptr == env) throw std::invalid_argument(STRINGIFY(env) " is null");
     if (nullptr == str) throw std::invalid_argument(STRINGIFY(str) " is null");
     assert(sizeof(jchar) == sizeof(char16_t));
-
-    LOGI("jStringToString()");
-
     const jchar * const jStrData = env->GetStringChars(str, nullptr);
     auto * const u16CStrData = reinterpret_cast<const char16_t *>(jStrData);
     const std::size_t utf16CStrDataSize = env->GetStringLength(str);

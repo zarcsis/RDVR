@@ -1,4 +1,4 @@
-#include "FreeRDPConnect.h"
+#include "FreeRDPConnection.h"
 
 #include "log.h"
 
@@ -11,9 +11,9 @@ struct VRContext
 };
 
 namespace com::mefazm::rdvr {
-    FreeRDPConnect::FreeRDPConnect(const std::string &hostname, const std::string &username,
-                                   const std::string &password, const size_t w, const size_t h) {
-        TAG = "com::mefazm::rdvr::FreeRDPConnect";
+    FreeRDPConnection::FreeRDPConnection(const std::string &hostname, const std::string &username,
+                                         const std::string &password) {
+        TAG = "com::mefazm::rdvr::FreeRDPConnection";
         RDP_CLIENT_ENTRY_POINTS clientEntryPoints = {
                 .Size = sizeof(RDP_CLIENT_ENTRY_POINTS),
                 .Version = RDP_CLIENT_INTERFACE_VERSION,
@@ -43,12 +43,14 @@ namespace com::mefazm::rdvr {
                         if(nullptr == instance->context) throw std::invalid_argument(STRINGIFY(instance->context) " is nullptr.");
                         if(nullptr == instance->context->pubSub) throw std::invalid_argument(STRINGIFY(instance->context->pubSub) " is nullptr.");
 
-                        if(CHANNEL_RC_OK != PubSub_SubscribeChannelConnected(instance->context->pubSub, [](void*, const ChannelConnectedEventArgs*){
+                        if(CHANNEL_RC_OK != PubSub_SubscribeChannelConnected(instance->context->pubSub, [](void* context, const ChannelConnectedEventArgs* e){
                             LOGI("ChannelConnected()");
+                            freerdp_client_OnChannelConnectedEventHandler(context, e);
                         })) throw std::runtime_error("PubSub_SubscribeChannelConnected() fail.");
 
-                        if(CHANNEL_RC_OK != PubSub_SubscribeChannelDisconnected(instance->context->pubSub, [](void*, const ChannelDisconnectedEventArgs*){
+                        if(CHANNEL_RC_OK != PubSub_SubscribeChannelDisconnected(instance->context->pubSub, [](void* context, const ChannelDisconnectedEventArgs* e){
                             LOGI("ChannelDisconnected()");
+                            freerdp_client_OnChannelDisconnectedEventHandler(context, e);
                         })) throw std::runtime_error("PubSub_SubscribeChannelDisconnected() fail.");
 
                         return TRUE;
@@ -107,6 +109,11 @@ namespace com::mefazm::rdvr {
                             return TRUE;
                         };
 
+                        instance->context->update->DesktopResize = [](rdpContext*) -> BOOL {
+                            LOGI("DesktopResize()");
+                            return TRUE;
+                        };
+
                         return TRUE;
                     };
 
@@ -136,6 +143,7 @@ namespace com::mefazm::rdvr {
                 .ClientStart = [](rdpContext *context) -> int {
                     LOGI("ClientStart()");
                     auto vrc = reinterpret_cast<VRContext*>(context);
+
                     vrc->common.thread = CreateThread(nullptr, 0, [](LPVOID param) -> DWORD {
                         LOGI("FreeRDP main thread.");
                         if(nullptr == param) throw std::invalid_argument(STRINGIFY(param) " is nullptr.");
@@ -151,7 +159,10 @@ namespace com::mefazm::rdvr {
                                 if(0 == n) throw std::runtime_error("freerdp_get_event_handles() fail.");
                                 nCount += n;
                                 if(WAIT_FAILED == WaitForMultipleObjects(nCount, handles, FALSE, INFINITE)) throw std::runtime_error("WaitForMultipleObjects() fail.");
-                                if(!freerdp_check_event_handles(instance->context)) throw std::runtime_error("freerdp_check_event_handles() fail.");
+                                if(!freerdp_check_event_handles(instance->context)) {
+                                    ret = freerdp_get_last_error(instance->context);
+                                    break;
+                                }
                             }
                         } else {
                             ret = freerdp_get_last_error(instance->context);
@@ -159,6 +170,7 @@ namespace com::mefazm::rdvr {
                         }
                         return ret;
                     }, context->instance, 0, nullptr);
+
                     if(nullptr == vrc->common.thread) throw std::runtime_error(STRINGIFY(vrc->common.thread) " is nullptr.");
                     return 0;
                 },
@@ -170,9 +182,7 @@ namespace com::mefazm::rdvr {
         };
         context = freerdp_client_context_new(&clientEntryPoints);
         if(nullptr == context) throw std::runtime_error(STRINGIFY(context) " is nullptr.");
-        LOGI("context = %p", context);
         if(nullptr == context->settings) throw std::runtime_error(STRINGIFY(context->settings) " is nullptr.");
-        LOGI("context->settings = %p", context->settings);
         if(!freerdp_settings_set_string(context->settings, FreeRDP_ProxyHostname, nullptr)) throw std::runtime_error("freerdp_settings_set_string(FreeRDP_ProxyHostname) return FALSE.");
         if(!freerdp_settings_set_string(context->settings, FreeRDP_ProxyUsername, nullptr)) throw std::runtime_error("freerdp_settings_set_string(FreeRDP_ProxyUsername) return FALSE.");
         if(!freerdp_settings_set_string(context->settings, FreeRDP_ProxyPassword, nullptr)) throw std::runtime_error("freerdp_settings_set_string(FreeRDP_ProxyPassword) return FALSE.");
@@ -181,21 +191,33 @@ namespace com::mefazm::rdvr {
         if(!freerdp_settings_set_string(context->settings, FreeRDP_Username, username.c_str())) throw std::runtime_error("freerdp_settings_set_string(FreeRDP_Username) return FALSE.");
         if(!freerdp_settings_set_string(context->settings, FreeRDP_Domain, nullptr)) throw std::runtime_error("freerdp_settings_set_string(FreeRDP_Domain) return FALSE.");
         if(!freerdp_settings_set_string(context->settings, FreeRDP_Password, password.c_str())) throw std::runtime_error("freerdp_settings_set_string(FreeRDP_Password) return FALSE.");
-        if(!freerdp_settings_set_uint32(context->settings, FreeRDP_DesktopWidth, w)) throw std::runtime_error("freerdp_settings_set_uint32(FreeRDP_DesktopWidth) return FALSE.");
-        if(!freerdp_settings_set_uint32(context->settings, FreeRDP_DesktopHeight, h)) throw std::runtime_error("freerdp_settings_set_uint32(FreeRDP_DesktopHeight) return FALSE.");
         freerdp_settings_set_bool(context->settings, FreeRDP_CertificateCallbackPreferPEM, TRUE);
         freerdp_settings_set_uint32(context->settings, FreeRDP_OsMajorType, OSMAJORTYPE_ANDROID);
         freerdp_performance_flags_make(context->settings);
         if(!stream_dump_register_handlers(context, CONNECTION_STATE_MCS_CREATE_REQUEST, false)) throw std::runtime_error("stream_dump_register_handlers(CONNECTION_STATE_MCS_CREATE_REQUEST) return FALSE.");
-        if(0 != freerdp_client_start(context)) throw std::runtime_error("freerdp_client_start() return not 0.");
     }
 
-    void FreeRDPConnect::SetSize(const size_t w, const size_t h) {
-        LOGI("SetSize(%zu, %zu)", w, h);
+    FreeRDPConnection::~FreeRDPConnection() {
+        freerdp_client_common_stop(context);
+        freerdp_client_stop(context);
+        freerdp_client_context_free(context);
+    }
+
+    void FreeRDPConnection::setSize(const size_t w, const size_t h) {
+        LOGI("setSize(%zu, %zu)", w, h);
         if (nullptr != context && nullptr != context->settings) {
             if(!freerdp_settings_set_uint32(context->settings, FreeRDP_DesktopWidth, w)) throw std::runtime_error("freerdp_settings_set_uint32(FreeRDP_DesktopWidth) return FALSE.");
             if(!freerdp_settings_set_uint32(context->settings, FreeRDP_DesktopHeight, h)) throw std::runtime_error("freerdp_settings_set_uint32(FreeRDP_DesktopHeight) return FALSE.");
         }
-        if(0 != freerdp_client_start(context)) throw std::runtime_error("freerdp_client_start() return not 0.");
+    }
+
+    bool FreeRDPConnection::connect() {
+        LOGI("connect()");
+        return 0 == freerdp_client_start(context);
+    }
+
+    bool FreeRDPConnection::disconnect() {
+        LOGI("disconnect()");
+        return freerdp_abort_connect_context(context);
     }
 } // com::mefazm::rdvr

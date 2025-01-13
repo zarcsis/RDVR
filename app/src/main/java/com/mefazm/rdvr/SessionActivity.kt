@@ -1,5 +1,6 @@
 package com.mefazm.rdvr
 
+import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 
 import android.os.Bundle
@@ -17,16 +18,23 @@ class SessionActivity : AppCompatActivity() {
         if (null == hostname) hostname = intent.getStringExtra("hostname")!!
         if (null == username) username = intent.getStringExtra("username")!!
         if (null == password) password = intent.getStringExtra("password")!!
-        sessionView?.post(Runnable() {
+        sessionView!!.post(Runnable() {
             if (null != hostname && null != username && null != password) {
-                Log.i("hostname: \"$hostname\", username: \"$username\", password: \"$password\", home: \"${filesDir.path}\", w: \"${sessionView!!.width}\", h: \"${sessionView!!.height}\"")
-                connect(hostname!!, username!!, password!!, filesDir!!.path, sessionView!!.width, sessionView!!.height)
+                Log.i("hostname: \"$hostname\", username: \"$username\", password: \"$password\", home: \"${filesDir.path}\", w: \"${sessionView!!.bmp!!.width}\", h: \"${sessionView!!.bmp!!.height}\"")
+                connect(hostname!!, username!!, password!!, filesDir!!.path, sessionView!!.bmp!!)
             }
         })
     }
 
-    private external fun connect(hostname: String, username: String, password: String, home: String, width: Int, height: Int)
+    override fun onStop() {
+        super.onStop()
+        Log.i("onStop()")
+        disconnect()
+    }
+
+    private external fun connect(hostname: String, username: String, password: String, home: String, bmp: Bitmap)
     private external fun resize(width: Int, height: Int)
+    private external fun disconnect()
 
     companion object {
         init {
