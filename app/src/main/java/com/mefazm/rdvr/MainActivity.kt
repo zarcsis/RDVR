@@ -28,8 +28,8 @@ class MainActivity : AppCompatActivity() {
         val textWatcher = fun(_: Editable?) {
             binding!!.buttonConnect.isEnabled =
                 binding!!.editTextHostname.text.isNotEmpty() &&
-                binding!!.editTextUsername.text.isNotEmpty() &&
-                binding!!.editTextPassword.text.isNotEmpty()
+                        binding!!.editTextUsername.text.isNotEmpty() &&
+                        binding!!.editTextPassword.text.isNotEmpty()
         }
 
         binding!!.editTextHostname.doAfterTextChanged(textWatcher)
@@ -79,6 +79,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var binding: ActivityMainBinding? = null
+
     private companion object {
         private val hostnameKey = stringPreferencesKey("HOSTNAME")
         private val usernameKey = stringPreferencesKey("USERNAME")

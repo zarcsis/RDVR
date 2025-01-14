@@ -19,8 +19,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <layout
-                android:defaultHeight="640dp"
-                android:defaultWidth="1024dp" />
+                android:defaultWidth="1024dp"
+                android:defaultHeight="640dp" />
         </activity>
         <activity android:name=".SessionActivity" />
     </application>

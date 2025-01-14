@@ -32,13 +32,23 @@ class SessionActivity : AppCompatActivity() {
         disconnect()
     }
 
-    private external fun connect(hostname: String, username: String, password: String, home: String, bmp: Bitmap)
+    private external fun connect(
+        hostname: String,
+        username: String,
+        password: String,
+        home: String,
+        bmp: Bitmap
+    )
+
     private external fun resize(width: Int, height: Int)
     private external fun disconnect()
 
     companion object {
         init {
             System.loadLibrary("rdvr")
+            System.loadLibrary("freerdp-client3")
+            System.loadLibrary("freerdp3")
+            System.loadLibrary("winpr3")
         }
     }
 
