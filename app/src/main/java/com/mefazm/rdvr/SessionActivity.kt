@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 
 import android.os.Bundle
+import java.util.Timer
+import java.util.TimerTask
 
 class SessionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,6 +24,11 @@ class SessionActivity : AppCompatActivity() {
             if (null != hostname && null != username && null != password) {
                 Log.i("hostname: \"$hostname\", username: \"$username\", password: \"$password\", home: \"${filesDir.path}\", w: \"${sessionView!!.bmp!!.width}\", h: \"${sessionView!!.bmp!!.height}\"")
                 connect(hostname!!, username!!, password!!, filesDir!!.path, sessionView!!.bmp!!)
+                Timer().schedule(object : TimerTask() {
+                    override fun run() {
+                        sessionView!!.invalidate()
+                    }
+                }, 0, 1000 / 72)
             }
         })
     }

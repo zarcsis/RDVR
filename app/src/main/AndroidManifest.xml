@@ -11,6 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.Material3.DayNight.NoActionBar">
+        <meta-data
+            android:name="com.oculus.supportedDevices"
+            android:value="quest3"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -19,8 +22,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <layout
-                android:defaultWidth="1024dp"
-                android:defaultHeight="640dp" />
+                android:defaultWidth="1280p"
+                android:defaultHeight="800dp" />
         </activity>
         <activity android:name=".SessionActivity" />
     </application>

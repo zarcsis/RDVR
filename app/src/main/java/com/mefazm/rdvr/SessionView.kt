@@ -13,8 +13,10 @@ class SessionView(context: Context) : View(context) {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        Log.i("width: $width, height: $height")
-        bmp = createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        if (null == bmp) {
+            Log.i("width: $width, height: $height")
+            bmp = createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        }
         canvas.drawBitmap(bmp!!, 0.0f, 0.0f, null)
     }
 
